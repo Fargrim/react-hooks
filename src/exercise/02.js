@@ -3,16 +3,20 @@
 
 import * as React from 'react'
 
-const useLocalStorageState = (key, initialName = '') => {
-  const [name, setName] = React.useState(() => {
-    return window.localStorage.getItem(key) ?? initialName;
+const useLocalStorageState = (key, initialValue = '', {
+  serialize = JSON.stringify,
+  deserialize = JSON.parse
+} = {}) => {
+  const [value, setValue] = React.useState(() => {
+    const valueInStorage = window.localStorage.getItem(key);
+    return valueInStorage ? deserialize(valueInStorage) : initialValue;
   });
 
   React.useEffect(() => {
-    window.localStorage.setItem('name', name);
-  }, [name])
+    window.localStorage.setItem(key, serialize(value));
+  }, [key, value, serialize])
 
-  return [name, setName];
+  return [value, setValue];
 }
 
 function Greeting({initialName = ''}) {
